@@ -1,7 +1,10 @@
 import {Component} from '@angular/core';
-import {Alert, NavController, Toast} from 'ionic-angular';
+import { NavController} from 'ionic-angular';
 import {ToastController} from "ionic-angular";
 import {AlertController} from 'ionic-angular';
+import {GroceriesServiceProvider} from "../../providers/groceries-service/groceries-service";
+import {InputDialogServiceProvider} from "../../providers/input-dialog-service/input-dialog-service";
+// import {InputDialogServiceProvider} from "../../providers/input-dialog-service/input-dialog-service";
 
 @Component({
   selector: 'page-home',
@@ -9,114 +12,23 @@ import {AlertController} from 'ionic-angular';
 })
 export class HomePage {
   title = "Grocery";
-  items = [
-    {
-      name: "Milk",
-      quantity: 2
-    },
-    {
-      name: "Bread",
-      quantity: 1
-    },
-    {
-      name: "Shrimp",
-      quantity: 3
-    },
-    {
-      name: "Sugar",
-      quantity: 1
-    },
-  ]
-
-  addItem = () => {
-    this.showPrompt();
+  items = this.dataService.items;
+  loadItems = ()=>{
+    console.log("loading items...")
+    return this.dataService.getItems();
   }
-  removeItem = (obj) => {
-    const toast = this.toastCtrl.create({
-        message: `Removing Item - ${obj.name}`,
-        duration: 1000
-      }
-    );
-    toast.present();
-    const isMatch = (item) => item.name === obj.name;
-    let index = this.items.findIndex(isMatch);
-    console.log(index);
-    this.items.splice(index, 1);
-
+  handleAdd = () => {
+    this.dialogService.addEditPrompt()
   }
-  editItem = (item) => {
-    this.editItemPrompt(item);
+  handleRemove = (item, i) => {
+    this.dataService.removeItem(item, i);
   }
-  editItemPrompt = (item) => {
-    const prompt: Alert = this.alertCtrl.create({
-      title: "update",
-      message: "update item",
-      inputs: [
-        {
-          name: "name",
-          placeholder: item.name,
-          value: item.name
-        },
-        {
-          name: "quantity",
-          placeholder: item.quantity,
-          value: item.quantity
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          handler: data => {
-            console.log("clicked");
-          }
-        },
-        {
-          text: "Saved",
-          handler: data => {
-            console.log("save clicked");
-            let foundIndex = this.items.findIndex((thisItem) => thisItem.name === item.name);
-            this.items[foundIndex] = {...this.items[foundIndex], ...data};
-          }
-        }
-
-      ]
-    })
-    prompt.present()
-  }
-  showPrompt = () => {
-    const prompt = this.alertCtrl.create({
-      title: 'Add Groceries',
-      message: "Add an item and quantity to be added to the list",
-      inputs: [
-        {
-          name: 'name',
-          placeholder: 'item'
-        },
-        {
-          name: 'quantity',
-          placeholder: 'quantity'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          handler: data => {
-            console.log('Cancel clicked');
-          }
-        },
-        {
-          text: 'Save',
-          handler: data => {
-            console.log('Save clicked', data);
-            this.items.push(data);
-          }
-        }
-      ]
-    });
-    prompt.present();
+  handleEdit = (item, i) => {
+    console.log(item);
+    this.dialogService.addEditPrompt(item, i);
   }
 
-  constructor(public navCtrl: NavController, public toastCtrl: ToastController, public alertCtrl: AlertController) {
+  constructor(public navCtrl: NavController, public toastCtrl: ToastController, public alertCtrl: AlertController, public dataService: GroceriesServiceProvider, public dialogService: InputDialogServiceProvider) {
 
   }
 
